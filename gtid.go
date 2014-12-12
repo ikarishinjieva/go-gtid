@@ -203,8 +203,8 @@ func subIntervals(as, bs []tInterval) []tInterval {
 					current.to = b.from - 1
 					continue
 				} else {
-					current.to = b.from - 1
 					nexts = append(nexts, tInterval{b.to + 1, current.to})
+					current.to = b.from - 1
 				}
 			}
 		}

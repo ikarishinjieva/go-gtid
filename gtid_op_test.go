@@ -123,3 +123,27 @@ func TestGtidSub_6(t *testing.T) {
 		t.Fatalf("wrong gtid %v", gtid)
 	}
 }
+
+func TestGtidSub_7(t *testing.T) {
+	gtid, err := GtidSub(
+		"ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-10:20-30",
+		"ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:5-6:25")
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:1-4:7-10:20-24:26-30" {
+		t.Fatalf("wrong gtid %v", gtid)
+	}
+}
+
+func TestGtidSub_8(t *testing.T) {
+	gtid, err := GtidSub(
+		"ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:20-30, ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-7, ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-10",
+		"ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-9:25, ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:6")
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:10:20-24:26-30,FF92C4DAC5D711E38CF75E10E6A05CFB:1-5:7" {
+		t.Fatalf("wrong gtid %v", gtid)
+	}
+}
