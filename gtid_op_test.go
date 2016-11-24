@@ -11,7 +11,7 @@ func TestGtidAdd(t *testing.T) {
 	if nil != err {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:1-10,FF92C4DAC5D711E38CF75E10E6A05CFB:1-5:7" {
+	if gtid != "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-10,ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-5:7" {
 		t.Fatalf("wrong gtid %v", gtid)
 	}
 }
@@ -59,7 +59,7 @@ func TestGtidSub_1(t *testing.T) {
 	if nil != err {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:1-10:20-30" {
+	if gtid != "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-10:20-30" {
 		t.Fatalf("wrong gtid %v", gtid)
 	}
 }
@@ -71,7 +71,7 @@ func TestGtidSub_2(t *testing.T) {
 	if nil != err {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:1-10" {
+	if gtid != "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-10" {
 		t.Fatalf("wrong gtid %v", gtid)
 	}
 }
@@ -83,7 +83,7 @@ func TestGtidSub_3(t *testing.T) {
 	if nil != err {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:1-10:26-30" {
+	if gtid != "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-10:26-30" {
 		t.Fatalf("wrong gtid %v", gtid)
 	}
 }
@@ -95,7 +95,7 @@ func TestGtidSub_4(t *testing.T) {
 	if nil != err {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:1-10" {
+	if gtid != "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-10" {
 		t.Fatalf("wrong gtid %v", gtid)
 	}
 }
@@ -107,7 +107,7 @@ func TestGtidSub_5(t *testing.T) {
 	if nil != err {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:1:30" {
+	if gtid != "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1:30" {
 		t.Fatalf("wrong gtid %v", gtid)
 	}
 }
@@ -131,7 +131,7 @@ func TestGtidSub_7(t *testing.T) {
 	if nil != err {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:1-4:7-10:20-24:26-30" {
+	if gtid != "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-4:7-10:20-24:26-30" {
 		t.Fatalf("wrong gtid %v", gtid)
 	}
 }
@@ -143,7 +143,73 @@ func TestGtidSub_8(t *testing.T) {
 	if nil != err {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if gtid != "CA8035EAC5D511E38CE9E66CCF50DB66:10:20-24:26-30,FF92C4DAC5D711E38CF75E10E6A05CFB:1-5:7" {
+	if gtid != "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:10:20-24:26-30,ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-5:7" {
 		t.Fatalf("wrong gtid %v", gtid)
+	}
+}
+
+func TestGtidSub_empty(t *testing.T) {
+	gtid, err := GtidSub(
+		"",
+		"")
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if gtid != "" {
+		t.Fatalf("wrong gtid %v", gtid)
+	}
+}
+
+func TestGtidOverlap_true(t *testing.T) {
+	ret, err := GtidOverlap(
+		"ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:10:20-24:26-30,ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-5:7",
+		"ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:4")
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if !ret {
+		t.Fatalf("expect true, but got false")
+	}
+}
+
+func TestGtidOverlap_false(t *testing.T) {
+	ret, err := GtidOverlap(
+		"ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:10:20-24:26-30,ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-5:7",
+		"ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:9")
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if ret {
+		t.Fatalf("expect false, but got true")
+	}
+}
+
+func TestGtidOverlap_empty(t *testing.T) {
+	ret, err := GtidOverlap("", "")
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if !ret {
+		t.Fatalf("expect true, but got false")
+	}
+}
+
+func TestGtidEqual_true(t *testing.T) {
+	ret, err := GtidOverlap("ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-10", "ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-10")
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if !ret {
+		t.Fatalf("expect true, but got false")
+	}
+}
+
+func TestGtidEqual_false(t *testing.T) {
+	ret, err := GtidOverlap("ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-10", "ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1-11")
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+	if !ret {
+		t.Fatalf("expect true, but got false")
 	}
 }

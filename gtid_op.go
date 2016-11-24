@@ -20,6 +20,25 @@ func GtidContain(gtidDesc0, gtidDesc1 string) (bool, error) {
 	return gtidMerged.String() == gtid0.String(), nil
 }
 
+func GtidOverlap(gtidDesc0 string, gtidDesc1 string) (bool, error) {
+	gtid0, err := parseGtid(gtidDesc0)
+	if nil != err {
+		return false, err
+	}
+	gtid1, err := parseGtid(gtidDesc1)
+	if nil != err {
+		return false, err
+	}
+	if "" == gtid0.String() && "" == gtid1.String() {
+		return true, nil
+	}
+	sub, err := GtidSub(gtidDesc0, gtidDesc1)
+	if nil != err {
+		return false, err
+	}
+	return gtid0.String() != sub, nil
+}
+
 func GtidSub(gtidDesc0, gtidDesc1 string) (string, error) {
 	gtid0, err := parseGtid(gtidDesc0)
 	if nil != err {
@@ -43,4 +62,16 @@ func GtidSub(gtidDesc0, gtidDesc1 string) (string, error) {
 		}
 	}
 	return ret.String(), nil
+}
+
+func GtidEqual(gtidDesc0 string, gtidDesc1 string) (bool, error) {
+	gtid0, err := parseGtid(gtidDesc0)
+	if nil != err {
+		return false, err
+	}
+	gtid1, err := parseGtid(gtidDesc1)
+	if nil != err {
+		return false, err
+	}
+	return gtid0.String() == gtid1.String(), nil
 }

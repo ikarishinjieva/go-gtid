@@ -32,9 +32,9 @@ func (g *Gtid) String() (ret string) {
 		s := uuidNumber.uuid
 		for _, interval := range uuidNumber.intervals {
 			if interval.from == interval.to {
-				s = fmt.Sprintf("%v:%v", s, interval.from)
+				s = s + ":" + strconv.FormatUint(interval.from, 10)
 			} else {
-				s = fmt.Sprintf("%v:%v-%v", s, interval.from, interval.to)
+				s = s + ":" + strconv.FormatUint(interval.from, 10) + "-" + strconv.FormatUint(interval.to, 10)
 			}
 		}
 		if "" != ret {
@@ -51,7 +51,7 @@ func parseGtid(gtidDesc string) (Gtid, error) {
 		return Gtid{}, nil
 	}
 
-	gtidDesc, err := uniformGtidDesc(gtidDesc)
+	gtidDesc, err := UniformGtid(gtidDesc)
 	if nil != err {
 		return Gtid{}, err
 	}
@@ -67,11 +67,17 @@ func parseGtid(gtidDesc string) (Gtid, error) {
 	return ret, nil
 }
 
-func uniformUuid(uuidDesc string) string {
-	return strings.ToUpper(strings.Replace(uuidDesc, "-", "", -1))
+func uniformUuid(uuidDesc string) (string, error) {
+	uuidDesc = strings.ToLower(strings.Replace(uuidDesc, "-", "", -1))
+	if 32 != len(uuidDesc) {
+		return "", fmt.Errorf("invalid uuid (%v)", uuidDesc)
+	}
+	uuidDesc = uuidDesc[0:8] + "-" + uuidDesc[8:12] + "-" + uuidDesc[12:16] + "-" + uuidDesc[16:20] + "-" + uuidDesc[20:]
+
+	return uuidDesc, nil
 }
 
-func uniformGtidDesc(gtidDesc string) (string, error) {
+func UniformGtid(gtidDesc string) (string, error) {
 	gtidDesc = strings.TrimSpace(gtidDesc)
 	hash := make(map[string]string)
 	keys := make([]string, 0)
@@ -87,9 +93,9 @@ func uniformGtidDesc(gtidDesc string) (string, error) {
 			return "", fmt.Errorf("invalid format (%v)", uuidNumberDesc)
 		}
 
-		uuid := uniformUuid(splits[0])
-		if 32 != len(uuid) {
-			return "", fmt.Errorf("invalid uuid (%v)", uuid)
+		uuid, err := uniformUuid(splits[0])
+		if nil != err {
+			return "", err
 		}
 
 		if "" != hash[uuid] {
@@ -213,4 +219,18 @@ func subIntervals(as, bs []tInterval) []tInterval {
 		}
 	}
 	return uniformIntervals(ret)
+}
+
+func GtidEventCount(gtidDesc string) (uint64, error) {
+	gtid, err := parseGtid(gtidDesc)
+	if nil != err {
+		return 0, err
+	}
+	var ret uint64 = 0
+	for _, uuidNumber := range gtid.uuidNumbers {
+		for _, interval := range uuidNumber.intervals {
+			ret += interval.to - interval.from + 1
+		}
+	}
+	return ret, nil
 }
