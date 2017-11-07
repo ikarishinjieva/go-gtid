@@ -103,3 +103,38 @@ func TestGtidEventCount(t *testing.T) {
 		t.Fatalf("ret (%v) should == 20", ret)
 	}
 }
+
+func TestGtidEventList(t *testing.T) {
+	gtidString := "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1-3:5-6, ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1"
+	eventList, err := GtidEventList(gtidString)
+	if nil != err {
+		t.Fatalf("unexpected error %v", err)
+	}
+
+	if 6 != len(eventList) {
+		t.Fatalf("eventList length(%v) should == 6", len(eventList))
+	}
+
+	hasErr := false
+	if "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:1" != eventList[0] {
+		hasErr = true
+	}
+	if "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:2" != eventList[1] {
+		hasErr = true
+	}
+	if "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:3" != eventList[2] {
+		hasErr = true
+	}
+	if "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:5" != eventList[3] {
+		hasErr = true
+	}
+	if "ca8035ea-c5d5-11e3-8ce9-e66ccf50db66:6" != eventList[4] {
+		hasErr = true
+	}
+	if "ff92c4da-c5d7-11e3-8cf7-5e10e6a05cfb:1" != eventList[5] {
+		hasErr = true
+	}
+	if hasErr {
+		t.Fatalf("wrong eventList %v, gtid is %s", eventList, gtidString)
+	}
+}
