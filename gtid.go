@@ -234,3 +234,19 @@ func GtidEventCount(gtidDesc string) (uint64, error) {
 	}
 	return ret, nil
 }
+
+func GtidEventList(gtidDesc string) ([]string, error) {
+	eventList := []string{}
+	gtid, err := parseGtid(gtidDesc)
+	if nil != err {
+		return eventList, err
+	}
+	for _, uuidNumber := range gtid.uuidNumbers {
+		for _, interval := range uuidNumber.intervals {
+			for i := interval.from; i <= interval.to; i++ {
+				eventList = append(eventList, fmt.Sprintf("%s:%d", uuidNumber.uuid, i))
+			}
+		}
+	}
+	return eventList, nil
+}
